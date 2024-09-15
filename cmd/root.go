@@ -5,6 +5,7 @@ import (
 
 	"github.com/idsulik/swama/cmd/config"
 	"github.com/idsulik/swama/cmd/endpoints"
+	"github.com/idsulik/swama/cmd/info"
 	"github.com/idsulik/swama/cmd/servers"
 	"github.com/idsulik/swama/cmd/tags"
 	"github.com/idsulik/swama/internal/swagger"
@@ -35,6 +36,7 @@ func init() {
 		"Path to the Swagger JSON/YAML file. If not provided, the tool will try to locate it.",
 	)
 
+	rootCmd.AddCommand(info.NewInfoCommand())
 	rootCmd.AddCommand(endpoints.NewEndpointsCommand())
 	rootCmd.AddCommand(servers.NewServersCommand())
 	rootCmd.AddCommand(tags.NewTagsCommand())
