@@ -109,6 +109,7 @@ var listCmd = &cobra.Command{
 			}
 
 			table = tablewriter.NewWriter(os.Stdout)
+			table.SetAutoWrapText(false)
 			table.SetHeader([]string{"Method", "Path", "Summary", "Tags"})
 			values := groupedEndpoints[key]
 			for _, value := range values {
