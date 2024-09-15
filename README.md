@@ -53,6 +53,11 @@ swaga list -f ./swagger.json
 
 This command lists all API endpoints defined in the `swagger.json` file.
 
+#### Output example grouped by tag:
+![preview1](https://github.com/user-attachments/assets/c493ce1e-4dcb-4353-9727-b15c07754054)
+#### Output example grouped by method:
+![preview2](https://github.com/user-attachments/assets/a6d6ed34-d5a6-4645-965e-04881d8eba01)
+
 #### View details of a specific endpoint
 
 ```bash
