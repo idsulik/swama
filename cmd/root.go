@@ -9,7 +9,7 @@ import (
 
 // rootCmd represents the base command
 var rootCmd = &cobra.Command{
-	Use:   "swaga",
+	Use:   "swama",
 	Short: "CLI tool for Swagger/OpenAPI operations",
 	Long:  `A simple CLI tool to list, view and convert Swagger endpoints.`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
