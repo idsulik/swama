@@ -7,15 +7,6 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-var (
-	ErrEndpointNotFound    = fmt.Errorf("endpoint not found")
-	ErrEndpointWrongMethod = fmt.Errorf("endpoint found but wrong method")
-)
-
-type Converter interface {
-	ConvertEndpoint(swagger *openapi3.T, method, endpoint string) (string, error)
-}
-
 const (
 	CurlType  = "curl"
 	FetchType = "fetch"
@@ -24,6 +15,10 @@ const (
 var (
 	ErrInvalidConvertType = errors.New(fmt.Sprintf("invalid convert type. Must be %q or %q", CurlType, FetchType))
 )
+
+type Converter interface {
+	ConvertEndpoint(method string, endpoint string, _ *openapi3.Operation) string
+}
 
 func NewConverter(convertType string) (Converter, error) {
 	switch convertType {

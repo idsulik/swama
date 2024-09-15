@@ -3,18 +3,19 @@ package cmd
 import (
 	"context"
 
-	"github.com/idsulik/swama/pkg/openapi"
+	"github.com/idsulik/swama/cmd/config"
+	"github.com/idsulik/swama/cmd/endpoints"
+	"github.com/idsulik/swama/internal/swagger"
 	"github.com/spf13/cobra"
 )
 
 // rootCmd represents the base command
 var rootCmd = &cobra.Command{
 	Use:   "swama",
-	Short: "CLI tool for Swagger/OpenAPI operations",
-	Long:  `A simple CLI tool to list, view and convert Swagger endpoints.`,
+	Short: "Swama is a CLI tool for interacting with Swagger/OpenAPI definitions",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if config.SwaggerPath == "" {
-			config.SwaggerPath = openapi.LocateSwaggerFile()
+			config.SwaggerPath = swagger.LocateSwaggerFile()
 		}
 	},
 }
@@ -31,8 +32,6 @@ func init() {
 		"",
 		"Path to the Swagger JSON/YAML file. If not provided, the tool will try to locate it.",
 	)
-	rootCmd.AddCommand(listCmd)
-	rootCmd.AddCommand(viewCmd)
-	rootCmd.AddCommand(convertCmd)
-	rootCmd.SetHelpCommand(nil)
+
+	rootCmd.AddCommand(endpoints.NewEndpointsCommand())
 }
