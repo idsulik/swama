@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/idsulik/swama/pkg/openapi"
 	"github.com/spf13/cobra"
-	"swama/pkg/openapi"
 )
 
 var viewCmd = &cobra.Command{

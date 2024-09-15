@@ -3,8 +3,8 @@ package cmd
 import (
 	"context"
 
+	"github.com/idsulik/swama/pkg/openapi"
 	"github.com/spf13/cobra"
-	"swama/pkg/openapi"
 )
 
 // rootCmd represents the base command

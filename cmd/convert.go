@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/idsulik/swama/pkg/converter"
+	"github.com/idsulik/swama/pkg/openapi"
 	"github.com/spf13/cobra"
-	"swama/pkg/converter"
-	"swama/pkg/openapi"
 )
 
 var convertCmd = &cobra.Command{

@@ -7,9 +7,9 @@ import (
 	"regexp"
 	"slices"
 
+	"github.com/idsulik/swama/pkg/openapi"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
-	"swama/pkg/openapi"
 )
 
 type ListConfig struct {

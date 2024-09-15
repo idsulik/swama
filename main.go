@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"swama/cmd"
+	"github.com/idsulik/swama/cmd"
 )
 
 func main() {
