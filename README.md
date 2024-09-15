@@ -1,16 +1,37 @@
-# Swama CLI Tool
+# Swama
 
-Swama is a simple CLI tool to list, view, and convert Swagger API endpoints. It helps you explore the API structure from a Swagger/OpenAPI specification file and convert API requests into common formats like `curl`, `fetch`.
+Swama is a powerful command-line interface (CLI) tool for interacting with Swagger/OpenAPI definitions. It allows you to list, view, convert, and explore API specifications directly from the command line. Swama supports JSON and YAML formats for Swagger files, and it's available for multiple platforms through pre-built binaries.
 
 ## Features
 
-- **List**: Display all API endpoints from a Swagger file in a structured table format.
-- **View**: View detailed information about a specific API endpoint.
-- **Convert**: Convert an API endpoint into `curl`, `fetch` request formats.
+- **List and View Endpoints**: Explore API endpoints and their details.
+- **Convert Endpoints**: Convert API endpoints to `curl` or `fetch` commands for testing.
+- **Explore Tags and Servers**: Easily view API tags and servers.
+- **Flexible Filtering**: Filter endpoints by method, tag, or specific endpoint using wildcards.
+- **Grouping**: Group endpoint listings by tag or method.
+- **Support for Autocompletion**: Enable shell autocompletion for faster workflows.
 
 ## Installation
 
-You can install `swama` by cloning the repository and building the binary:
+### Download Pre-Built Binaries
+
+Swama provides pre-built binaries for Linux, macOS, and Windows. You can download the appropriate binary from the [releases page](https://github.com/idsulik/swama/releases).
+
+1. **Download the latest release**:
+    - Navigate to the [releases page](https://github.com/idsulik/swama/releases).
+    - Choose the binary for your platform (Linux, macOS, Windows).
+
+2. **Install the binary**:
+    - **Linux/MacOS**: Move the binary to a directory in your `$PATH`:
+      ```bash
+      sudo mv swama /usr/local/bin/
+      sudo chmod +x /usr/local/bin/swama
+      ```
+    - **Windows**: Add the binary to your system's `PATH` for global access.
+
+### Build from Source
+
+Alternatively, you can build Swama from source:
 
 ```bash
 git clone https://github.com/idsulik/swama
@@ -18,13 +39,11 @@ cd swama
 go build -o swama
 ```
 
-Ensure that the binary is placed in a directory included in your `PATH`.
-
 ## Usage
 
-Swama provides several commands for interacting with your Swagger/OpenAPI file:
+After installation, you can use the `swama` command to interact with Swagger/OpenAPI files.
 
-### General Usage
+### General Command Usage
 
 ```bash
 swama [command]
@@ -32,78 +51,161 @@ swama [command]
 
 ### Available Commands
 
-- **`completion`**: Generate the autocompletion script for your shell.
-- **`convert`**: Convert an API endpoint to different request formats (e.g., `curl`, `fetch`).
-- **`list`**: Lists all API endpoints in a structured table format.
-- **`view`**: View details about a specific API endpoint.
-- **`help`**: Show help for commands.
+- **`completion`**: Generate the autocompletion script for the specified shell.
+- **`endpoints`**: Interact with API endpoints (list, view, convert).
+- **`help`**: Get help about a specific command.
+- **`info`**: Display general information about the Swagger file.
+- **`servers`**: Interact with servers.
+- **`tags`**: Interact with API tags.
 
 ### Global Flags
 
-- **`-f, --file`**: Path to the Swagger JSON/YAML file. If omitted, `swama` will attempt to locate the Swagger file in the current directory.
-- **`-h, --help`**: Display help for the `swama` CLI.
+- **`-f, --file string`**: Path to the Swagger JSON/YAML file. If not provided, the tool will attempt to locate the Swagger file in the current directory.
+- **`-h, --help`**: Displays help for the `swama` command or any subcommand.
 
-### Examples
+---
 
-#### List all endpoints
+## Commands Overview
 
-```bash
-swama list -f ./swagger.json
-```
+### Endpoints
 
-This command lists all API endpoints defined in the `swagger.json` file.
+The `endpoints` command allows you to list, view, and convert API endpoints.
 
-#### Output example grouped by tag:
-![preview1](https://github.com/user-attachments/assets/c493ce1e-4dcb-4353-9727-b15c07754054)
-#### Output example grouped by method:
-![preview2](https://github.com/user-attachments/assets/a6d6ed34-d5a6-4645-965e-04881d8eba01)
+#### List Endpoints
 
-#### View details of a specific endpoint
+Lists all API endpoints from a Swagger/OpenAPI file.
 
 ```bash
-swama view -f ./swagger.json --endpoint /api/users
+swama endpoints list [flags]
 ```
 
-This command will display detailed information about the `/api/users` endpoint.
+**Available Flags**:
 
-#### Convert an endpoint to a `curl` command
+- `-e, --endpoint string`: Filter by endpoint, supports wildcard.
+- `-g, --group string`: Group output by tag or method (default: "tag").
+- `-m, --method string`: Filter by method (GET, POST, etc.).
+- `-t, --tag string`: Filter by tag.
+
+**Example**:
 
 ```bash
-swama convert -f ./swagger.json --endpoint /api/users --type curl
+swama endpoints list
 ```
 
-This command converts the `/api/users` endpoint to a `curl` command.
+![preview](https://github.com/user-attachments/assets/73f65416-4fa7-4824-beff-7ea1372d4cc0)
 
-#### Generate shell autocompletion
+#### View Endpoint Details
 
-You can generate autocompletion scripts for your shell (e.g., bash, zsh, fish):
+Displays detailed information for a specific API endpoint.
+
+```bash
+swama endpoints view [flags]
+```
+
+**Available Flags**:
+
+- `-e, --endpoint string`: Specify the endpoint to view.
+- `-m, --method string`: Specify the method (GET, POST, etc.) of the endpoint to view.
+
+**Example**:
+
+```bash
+swama endpoints view --method=GET --endpoint=/user/{username}
+```
+
+![preview](https://github.com/user-attachments/assets/cc288ccc-e51a-4326-99a1-9c0e4d7bc449)
+
+#### Convert an Endpoint
+
+Converts an API endpoint to either a `curl` or `fetch` command.
+
+```bash
+swama endpoints convert [flags]
+```
+
+**Available Flags**:
+
+- `-e, --endpoint string`: Specify the endpoint to convert.
+- `-m, --method string`: Specify the method (GET, POST, etc.).
+- `-t, --type string`: Type to convert to (`curl`, `fetch`).
+
+**Example**:
+
+```bash
+swama endpoints convert --file swagger.yaml --endpoint /api/users --method POST --type curl
+```
+
+### Tags
+
+The `tags` command allows you to list API tags in the Swagger/OpenAPI file.
+
+```bash
+swama tags list [flags]
+```
+
+**Available Flags**:
+
+- `-h, --help`: Displays help for the `tags` command.
+
+**Example**:
+
+```bash
+swama tags list --file swagger.yaml
+```
+
+### Servers
+
+The `servers` command allows you to list servers from the Swagger/OpenAPI file.
+
+```bash
+swama servers list [flags]
+```
+
+**Available Flags**:
+
+- `-h, --help`: Displays help for the `servers` command.
+
+**Example**:
+
+```bash
+swama servers list --file swagger.yaml
+```
+
+### Info
+
+Displays general information about the Swagger/OpenAPI file, such as the version, title, and description.
+
+```bash
+swama info --file swagger.yaml
+```
+
+![preview](https://github.com/user-attachments/assets/6fd03077-e7f6-4baa-8b17-17626c5d12a2)
+---
+
+## Autocompletion
+
+Swama supports autocompletion for various shells, such as Bash and Zsh. You can generate a script for your shell to enable autocompletion.
+
+### Example: Generate Bash Completion Script
 
 ```bash
 swama completion bash > /etc/bash_completion.d/swama
 ```
 
-## More Information
-
-For more details on each command, use the `--help` flag with the command:
+### Example: Generate Zsh Completion Script
 
 ```bash
-swama [command] --help
-```
-
-For example:
-
-```bash
-swama list --help
+swama completion zsh > ~/.zsh/completion/_swama
 ```
 
 ## Contributing
 
-Feel free to contribute to this project by submitting issues or pull requests at the official [GitHub repository](https://github.com/idsulik/swama).
+Contributions to Swama are welcome! Feel free to submit issues or pull requests on the [GitHub repository](https://github.com/idsulik/swama).
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
+Swama is licensed under the MIT License. See the `LICENSE` file for more details.
 
 ---
 
-Swama simplifies exploring and interacting with your Swagger-defined API, making it easier to understand and test API endpoints quickly.
+With Swama, interacting with Swagger/OpenAPI files is straightforward and efficient. Whether you're exploring API endpoints, converting them to testable commands, or managing servers and tags, Swama provides a simple and powerful interface for your needs. Get started by downloading the binary or building from source today!
