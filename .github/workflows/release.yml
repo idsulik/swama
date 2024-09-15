@@ -1,0 +1,79 @@
+name: Create Release with Assets
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers the workflow when a tag is pushed
+
+permissions:
+  contents: write  # Explicitly grant write permissions for contents
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+
+    outputs:
+      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+  build:
+    needs: create_release  # Wait for the create_release job to complete
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        arch: [amd64, arm64]  # Different architectures
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+
+      - name: Build binary
+        run: |
+          # Set the GOOS, GOARCH, and extension for Windows
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            GOOS=linux
+            EXT=""
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            GOOS=darwin
+            EXT=""
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            GOOS=windows
+            EXT=".exe"
+          fi
+
+          GOARCH=${{ matrix.arch }}
+
+          # Create the build directory and build the binary
+          mkdir -p ./bin
+          go build -o ./bin/swama-${GOOS}-${GOARCH}${EXT}
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.release_upload_url }}  # Use the upload_url from the create_release job
+          asset_path: ./bin/swama-${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'darwin' || matrix.os == 'windows-latest' && 'windows' }}-${{ matrix.arch }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+          asset_name: swama-${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'darwin' || matrix.os == 'windows-latest' && 'windows' }}-${{ matrix.arch }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+          asset_content_type: application/octet-stream
