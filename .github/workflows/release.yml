@@ -48,18 +48,27 @@ jobs:
         with:
           go-version: '1.23'
 
-      - name: Build binary
+      - name: Build binary (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
         run: |
-          # Set the GOOS, GOARCH, and extension for Windows
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+          $GOOS = "windows"
+          $EXT = ".exe"
+          $GOARCH = "${{ matrix.arch }}"
+
+          # Create the build directory and build the binary
+          New-Item -ItemType Directory -Force -Path ./bin
+          go build -o ./bin/swama-$GOOS-$GOARCH$EXT
+
+      - name: Build binary (Linux & macOS)
+        if: matrix.os != 'windows-latest'
+        run: |
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
             GOOS=linux
             EXT=""
-          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
             GOOS=darwin
             EXT=""
-          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            GOOS=windows
-            EXT=".exe"
           fi
 
           GOARCH=${{ matrix.arch }}
@@ -73,7 +82,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.create_release.outputs.release_upload_url }}  # Use the upload_url from the create_release job
+          upload_url: ${{ needs.create_release.outputs.release_upload_url }}
           asset_path: ./bin/swama-${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'darwin' || matrix.os == 'windows-latest' && 'windows' }}-${{ matrix.arch }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
           asset_name: swama-${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'darwin' || matrix.os == 'windows-latest' && 'windows' }}-${{ matrix.arch }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
           asset_content_type: application/octet-stream
