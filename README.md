@@ -1,4 +1,8 @@
-# Swama
+# Swama 
+[![Go Report Card](https://goreportcard.com/badge/github.com/idsulik/swama)](https://goreportcard.com/report/github.com/idsulik/swama)
+[![Version](https://img.shields.io/github/v/release/idsulik/swama)](https://github.com/idsulik/swama/releases)
+[![License](https://img.shields.io/github/license/idsulik/swama)](https://github.com/idsulik/swama/blob/main/LICENSE)
+[![GoDoc](https://pkg.go.dev/badge/github.com/idsulik/swama)](https://pkg.go.dev/github.com/idsulik/swama)
 
 Swama is a powerful command-line interface (CLI) tool for interacting with Swagger/OpenAPI definitions. It allows you to list, view, convert, and explore API specifications directly from the command line. Swama supports JSON and YAML formats for Swagger files, and it's available for multiple platforms through pre-built binaries.
 
