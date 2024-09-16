@@ -21,8 +21,9 @@ var listCfg = listConfig{}
 // newListCommand creates the "endpoints list" subcommand
 func newListCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Lists all API endpoints from a Swagger file",
+		Use:     "list",
+		Short:   "Lists all API endpoints from a Swagger file",
+		Example: "swama endpoints list --method GET --tag user",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			doc, err := swagger.LoadSwaggerFile(config.SwaggerPath)
 
