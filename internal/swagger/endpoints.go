@@ -9,6 +9,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	converter2 "github.com/idsulik/swama/internal/converter"
+	"github.com/idsulik/swama/internal/printer"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -144,52 +145,17 @@ func (e *endpoints) ViewEndpoint(method, endpoint string) error {
 
 	if len(operation.Parameters) > 0 {
 		fmt.Println("Parameters:")
-
-		table = tablewriter.NewWriter(os.Stdout)
-		table.SetAutoWrapText(false)
-		table.SetHeader([]string{"Parameter", "Type", "Required", "Description"})
-		for _, p := range operation.Parameters {
-			value := p.Value
-			table.Append([]string{value.Name, value.In, fmt.Sprintf("%v", value.Required), value.Description})
-		}
-		table.Render()
+		printer.PrintParameters(operation)
 	}
 
 	if operation.RequestBody != nil {
 		fmt.Println("Request Body:")
-
-		table = tablewriter.NewWriter(os.Stdout)
-		table.SetAutoWrapText(false)
-		table.SetHeader([]string{"Type", "Description"})
-		for contentType, content := range operation.RequestBody.Value.Content {
-			table.Append([]string{contentType, content.Schema.Value.Description})
-		}
-		table.Render()
+		printer.PrintRequestBody(operation)
 	}
 
 	if operation.Responses != nil {
 		fmt.Println("Responses:")
-
-		table = tablewriter.NewWriter(os.Stdout)
-		table.SetAutoWrapText(false)
-		table.SetHeader([]string{"Response", "Types", "Description"})
-		for code, response := range operation.Responses.Map() {
-			value := response.Value
-			var contentTypes, description string
-
-			if value.Description != nil {
-				description = *value.Description
-			}
-
-			if value.Content != nil {
-				for contentType := range value.Content {
-					contentTypes += contentType + " "
-				}
-			}
-
-			table.Append([]string{code, contentTypes, description})
-		}
-		table.Render()
+		printer.PrintResponses(operation)
 	}
 
 	return nil
