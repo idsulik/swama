@@ -67,9 +67,13 @@ func (e *endpoints) ListEndpoints(method, endpoint, tag, group string) error {
 			if group != "" {
 				keys := make([]string, 0)
 				if group == GroupByTag {
-					for _, tag := range operation.Tags {
-						description := e.doc.Tags.Get(tag).Description
-						keys = append(keys, fmt.Sprintf("%s (%s)", tag, description))
+					for _, tagName := range operation.Tags {
+						tag := e.doc.Tags.Get(tagName)
+						key := tagName
+						if tag != nil {
+							key += fmt.Sprintf(" (%s)", tag.Description)
+						}
+						keys = append(keys, key)
 					}
 				} else if group == GroupByMethod {
 					keys = append(keys, m)
