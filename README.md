@@ -180,7 +180,7 @@ swama servers list --file swagger.yaml
 Displays general information about the Swagger/OpenAPI file, such as the version, title, and description.
 
 ```bash
-swama info --file swagger.yaml
+swama info view --file swagger.yaml
 ```
 
 ![preview](https://github.com/user-attachments/assets/6fd03077-e7f6-4baa-8b17-17626c5d12a2)
