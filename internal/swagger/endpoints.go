@@ -6,6 +6,7 @@ import (
 	"os"
 	"regexp"
 	"slices"
+	"sort"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	converter2 "github.com/idsulik/swama/internal/converter"
@@ -115,6 +116,14 @@ func (e *endpoints) ListEndpoints(method, endpoint, tag, group string) error {
 		table.SetRowLine(true)
 		table.SetHeader([]string{"Method", "Path", "Summary", "Tags"})
 		values := groupedEndpoints[key]
+		sort.Slice(
+			values, func(i, j int) bool {
+				if values[i].method != values[j].method {
+					return values[i].method > values[j].method
+				}
+				return values[i].path < values[j].path
+			},
+		)
 		for _, value := range values {
 			methodColor := tablewriter.FgWhiteColor
 			if value.method == "GET" {
