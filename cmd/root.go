@@ -6,6 +6,7 @@ import (
 	"github.com/idsulik/swama/cmd/config"
 	"github.com/idsulik/swama/cmd/endpoints"
 	"github.com/idsulik/swama/cmd/info"
+	"github.com/idsulik/swama/cmd/models"
 	"github.com/idsulik/swama/cmd/servers"
 	"github.com/idsulik/swama/cmd/tags"
 	"github.com/idsulik/swama/internal/swagger"
@@ -38,6 +39,7 @@ func init() {
 
 	rootCmd.AddCommand(info.NewInfoCommand())
 	rootCmd.AddCommand(endpoints.NewEndpointsCommand())
+	rootCmd.AddCommand(models.NewModelsCommand())
 	rootCmd.AddCommand(servers.NewServersCommand())
 	rootCmd.AddCommand(tags.NewTagsCommand())
 }
