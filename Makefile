@@ -4,31 +4,29 @@ GOBIN ?= $(or $(shell go env GOBIN),$(GOPATH)/bin)
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 
-# Directories and project
+# Directories and project settings
 BUILD_DIR ?= ./bin
-PROJECT = swama
+PROJECT_NAME = swama
+BINARY = $(BUILD_DIR)/$(PROJECT_NAME)
 
-# Define the target binary name
-BINARY = $(BUILD_DIR)/$(PROJECT)
+# PHONY targets
+.PHONY: all build install clean
 
-# Create the build directory
+# Default target
+all: build
+
+# Ensure the build directory exists and build the binary
+build: | $(BUILD_DIR)
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(BINARY)
+
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-# PHONY targets are not actual files, they are commands.
-.PHONY: build
-build: $(BINARY)
+# Install the binary to GOBIN
+install: build
+	install -d $(GOBIN)
+	install -m 755 $(BINARY) $(GOBIN)/$(PROJECT_NAME)
 
-# Build the binary
-$(BINARY): $(BUILD_DIR)
-	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(BINARY)
-
-.PHONY: install
-install: $(BINARY)
-	mkdir -p $(GOBIN)
-	rm -f $(GOBIN)/$(PROJECT)
-	cp $(BINARY) $(GOBIN)/$(PROJECT)
-
-.PHONY: clean
+# Clean build artifacts
 clean:
 	rm -rf $(BUILD_DIR)
