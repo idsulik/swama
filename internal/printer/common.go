@@ -35,6 +35,11 @@ func enrichPropertyName(propertyName string, prop *openapi3.SchemaRef) string {
 		} else {
 			propertyName += fmt.Sprintf(" (%s: %s)", strings.Join(prop.Value.Type.Slice(), ", "), prop.Value.Format)
 		}
+
+		if prop.Value.Properties != nil {
+			properties := getProperties(prop.Value)
+			propertyName += fmt.Sprintf(" {%s}", strings.Join(properties, ","))
+		}
 	}
 
 	return propertyName
