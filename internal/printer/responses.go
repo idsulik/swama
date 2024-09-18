@@ -1,7 +1,6 @@
 package printer
 
 import (
-	"fmt"
 	"maps"
 	"os"
 	"slices"
@@ -14,12 +13,17 @@ import (
 func PrintResponses(operation *openapi3.Operation) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
+	table.SetAutoMergeCells(true)
 	table.SetRowLine(true)
-	table.SetHeader([]string{"Name", "Content", "Description"})
+	table.SetHeader([]string{"Name", "Content Types", "Properties", "Description"})
 	sortedCodes := slices.Sorted(maps.Keys(operation.Responses.Map()))
 	for _, code := range sortedCodes {
 		response := operation.Responses.Value(code)
-		content := "-"
+		description := "-"
+		if response.Value.Description != nil {
+			description = *response.Value.Description
+		}
+
 		if response.Value.Content != nil {
 			propertiesToContentTypes := make(map[string][]string)
 			for contentType := range response.Value.Content {
@@ -28,16 +32,12 @@ func PrintResponses(operation *openapi3.Operation) {
 			}
 
 			for properties, contentTypes := range propertiesToContentTypes {
-				content = fmt.Sprintf("types:\n%s\n\nproperties:\n%s", strings.Join(contentTypes, "\n"), properties)
+				table.Append([]string{code, strings.Join(contentTypes, "\n"), properties, description})
 			}
+		} else {
+			table.Append([]string{code, "-", "-", description})
 		}
 
-		description := "-"
-		if response.Value.Description != nil {
-			description = *response.Value.Description
-		}
-
-		table.Append([]string{code, content, description})
 	}
 
 	table.Render()

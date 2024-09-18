@@ -112,10 +112,26 @@ func (e *endpoints) ListEndpoints(method, endpoint, tag, group string) error {
 
 		table = tablewriter.NewWriter(os.Stdout)
 		table.SetAutoWrapText(false)
+		table.SetRowLine(true)
 		table.SetHeader([]string{"Method", "Path", "Summary", "Tags"})
 		values := groupedEndpoints[key]
 		for _, value := range values {
-			table.Append([]string{value.method, value.path, value.summary, value.tags})
+			methodColor := tablewriter.FgWhiteColor
+			if value.method == "GET" {
+				methodColor = tablewriter.FgBlueColor
+			} else if value.method == "POST" {
+				methodColor = tablewriter.FgGreenColor
+			} else if value.method == "PUT" {
+				methodColor = tablewriter.FgYellowColor
+			} else if value.method == "DELETE" {
+				methodColor = tablewriter.FgRedColor
+			}
+
+			table.Rich(
+				[]string{value.method, value.path, value.summary, value.tags}, []tablewriter.Colors{
+					{methodColor},
+				},
+			)
 		}
 
 		table.Render()
