@@ -1,6 +1,7 @@
 package swagger
 
 import (
+	"context"
 	"log"
 	"net/url"
 	"os"
@@ -19,7 +20,11 @@ var defaultFiles = []string{
 
 // LoadSwaggerFile loads the Swagger/OpenAPI file into a parsed document.
 func LoadSwaggerFile(filepath string) (*openapi3.T, error) {
-	swaggerLoader := openapi3.NewLoader()
+	swaggerLoader := &openapi3.Loader{
+		Context:               context.Background(),
+		IsExternalRefsAllowed: true,
+	}
+
 	url, err := url.Parse(filepath)
 	if err != nil {
 		return nil, err
