@@ -2,6 +2,7 @@ package swagger
 
 import (
 	"log"
+	"net/url"
 	"os"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -19,8 +20,12 @@ var defaultFiles = []string{
 // LoadSwaggerFile loads the Swagger/OpenAPI file into a parsed document.
 func LoadSwaggerFile(filepath string) (*openapi3.T, error) {
 	swaggerLoader := openapi3.NewLoader()
-	doc, err := swaggerLoader.LoadFromFile(filepath)
+	url, err := url.Parse(filepath)
+	if err != nil {
+		return nil, err
+	}
 
+	doc, err := swaggerLoader.LoadFromURI(url)
 	if err != nil {
 		return nil, err
 	}
