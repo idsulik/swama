@@ -96,7 +96,7 @@ swama endpoints list [flags]
 swama endpoints list
 ```
 
-![preview](https://github.com/user-attachments/assets/73f65416-4fa7-4824-beff-7ea1372d4cc0)
+![preview](https://github.com/user-attachments/assets/59937e51-3992-4ee7-b629-a9d004310afc)
 
 #### View Endpoint Details
 
@@ -114,10 +114,11 @@ swama endpoints view [flags]
 **Example**:
 
 ```bash
-swama endpoints view --method=GET --endpoint=/user/{username}
+swama endpoints view --method=GET --endpoint=/user
 ```
 
-![preview](https://github.com/user-attachments/assets/cc288ccc-e51a-4326-99a1-9c0e4d7bc449)
+![preview](https://github.com/user-attachments/assets/7eff7784-f276-4027-9606-f59fdd6b0951)
+
 
 #### Convert an Endpoint
 
