@@ -22,7 +22,7 @@ func newViewCommand() *cobra.Command {
 		Use:   "view",
 		Short: "View details of a specific endpoint",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			doc, err := swagger.LoadSwaggerFile(config.SwaggerPath)
+			doc, err := swagger.LoadSwaggerFile(cmd.Context(), config.SwaggerPath)
 
 			if err != nil {
 				return fmt.Errorf("failed to load Swagger file: %w", err)

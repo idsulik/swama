@@ -15,7 +15,7 @@ func newListCommand() *cobra.Command {
 		Short:   "Lists all API models from a Swagger file",
 		Example: "swama models list",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			doc, err := swagger.LoadSwaggerFile(config.SwaggerPath)
+			doc, err := swagger.LoadSwaggerFile(cmd.Context(), config.SwaggerPath)
 
 			if err != nil {
 				return fmt.Errorf("failed to load Swagger file: %w", err)

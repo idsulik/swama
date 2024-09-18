@@ -19,9 +19,9 @@ var defaultFiles = []string{
 }
 
 // LoadSwaggerFile loads the Swagger/OpenAPI file into a parsed document.
-func LoadSwaggerFile(filepath string) (*openapi3.T, error) {
+func LoadSwaggerFile(ctx context.Context, filepath string) (*openapi3.T, error) {
 	swaggerLoader := &openapi3.Loader{
-		Context:               context.Background(),
+		Context:               ctx,
 		IsExternalRefsAllowed: true,
 	}
 

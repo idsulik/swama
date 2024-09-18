@@ -21,8 +21,8 @@ func vewViewCommand() *cobra.Command {
 	return cmd
 }
 
-func viewCommandFunc(_ *cobra.Command, _ []string) error {
-	doc, err := swagger.LoadSwaggerFile(config.SwaggerPath)
+func viewCommandFunc(cmd *cobra.Command, _ []string) error {
+	doc, err := swagger.LoadSwaggerFile(cmd.Context(), config.SwaggerPath)
 
 	if err != nil {
 		return fmt.Errorf("failed to load Swagger file: %w", err)
