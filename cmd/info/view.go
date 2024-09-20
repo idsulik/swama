@@ -34,11 +34,22 @@ func viewCommandFunc(cmd *cobra.Command, _ []string) error {
 
 	table.Append([]string{"Title", doc.Info.Title})
 	table.Append([]string{"Version", doc.Info.Version})
+	if doc.Info.Contact != nil {
+		if doc.Info.Contact.Email != "" {
+			table.Append([]string{"Email", doc.Info.Contact.Email})
+		}
+	}
+	if doc.Info.License != nil {
+		if doc.Info.License.Name != "" {
+			table.Append([]string{"License", fmt.Sprintf("%s (%s)", doc.Info.License.Name, doc.Info.License.URL)})
+		}
+	}
 	table.Append([]string{"Description", doc.Info.Description})
 	table.Append([]string{"Terms of Service", doc.Info.TermsOfService})
-	table.Append([]string{"Contact", doc.Info.Contact.Name})
-	table.Append([]string{"License", doc.Info.License.Name})
 
+	if doc.ExternalDocs != nil {
+		table.Append([]string{"External docs", doc.ExternalDocs.URL})
+	}
 	table.Render()
 
 	return nil
