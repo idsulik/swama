@@ -12,6 +12,7 @@ func NewTagsCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(newListCommand())
+	cmd.AddCommand(newViewCommand())
 
 	return cmd
 }
