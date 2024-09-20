@@ -1,4 +1,4 @@
-package models
+package components
 
 import (
 	"fmt"
@@ -8,12 +8,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// newListCommand creates the "models list" subcommand
+// newListCommand creates the "components list" subcommand
 func newListCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
-		Short:   "Lists all API models from a Swagger file",
-		Example: "swama models list",
+		Short:   "Lists all API components from a Swagger file",
+		Example: "swama components list",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			doc, err := swagger.LoadSwaggerFile(cmd.Context(), config.SwaggerPath)
 
@@ -21,9 +21,9 @@ func newListCommand() *cobra.Command {
 				return fmt.Errorf("failed to load Swagger file: %w", err)
 			}
 
-			models := swagger.NewModels(doc)
+			components := swagger.NewComponents(doc)
 
-			return models.ListModels()
+			return components.ListComponents()
 		},
 	}
 

@@ -1,4 +1,4 @@
-package models
+package components
 
 import (
 	"fmt"
@@ -15,11 +15,11 @@ type viewConfig struct {
 // Command-specific flags for the view command
 var viewCfg = viewConfig{}
 
-// newViewCommand creates the "models view" subcommand
+// newViewCommand creates the "components view" subcommand
 func newViewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "view",
-		Short: "View details of a specific model",
+		Short: "View details of a specific component",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			doc, err := swagger.LoadSwaggerFile(cmd.Context(), config.SwaggerPath)
 
@@ -27,13 +27,13 @@ func newViewCommand() *cobra.Command {
 				return fmt.Errorf("failed to load Swagger file: %w", err)
 			}
 
-			models := swagger.NewModels(doc)
+			components := swagger.NewComponents(doc)
 
-			return models.ViewModel(viewCfg.name)
+			return components.ViewComponent(viewCfg.name)
 		},
 	}
 
-	cmd.Flags().StringVarP(&viewCfg.name, "name", "n", "", "Name of the model to view")
+	cmd.Flags().StringVarP(&viewCfg.name, "name", "n", "", "Name of the component to view")
 
 	return cmd
 }

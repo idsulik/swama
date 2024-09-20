@@ -12,23 +12,23 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-type Models interface {
-	ListModels() error
-	ViewModel(name string) error
+type Components interface {
+	ListComponents() error
+	ViewComponent(name string) error
 }
 
-type models struct {
+type components struct {
 	doc *openapi3.T
 }
 
-func NewModels(doc *openapi3.T) Models {
-	return &models{
+func NewComponents(doc *openapi3.T) Components {
+	return &components{
 		doc: doc,
 	}
 }
 
-// ListModels lists all available API models in the Swagger/OpenAPI file.
-func (e *models) ListModels() error {
+// ListComponents lists all available API components in the Swagger/OpenAPI file.
+func (e *components) ListComponents() error {
 	var sortedNames []string
 	if e.doc.Components == nil {
 		sortedNames = slices.Sorted(maps.Keys(e.doc.Extensions["definitions"].(map[string]interface{})))
@@ -67,8 +67,8 @@ func (e *models) ListModels() error {
 	return nil
 }
 
-// ViewModel shows details about a specific API model.
-func (e *models) ViewModel(name string) error {
+// ViewComponent shows details about a specific API component.
+func (e *components) ViewComponent(name string) error {
 	if e.doc.Components != nil {
 		for n, schema := range e.doc.Components.Schemas {
 			if strings.ToLower(n) == strings.ToLower(name) {
@@ -86,6 +86,6 @@ func (e *models) ViewModel(name string) error {
 			}
 		}
 	}
-	fmt.Printf("Model %s not found\n", name)
+	fmt.Printf("Component %s not found\n", name)
 	return nil
 }
