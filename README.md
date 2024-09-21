@@ -57,7 +57,7 @@ swama [command]
 
 - **`completion`**: Generate the autocompletion script for the specified shell.
 - **`endpoints`**: Interact with API endpoints (list, view, convert).
-- **`help`**: Get help about a specific command.
+- **`components`**: Interact with API components (list, view).
 - **`info`**: Display general information about the Swagger file.
 - **`servers`**: Interact with servers.
 - **`tags`**: Interact with API tags.
