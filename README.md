@@ -140,6 +140,46 @@ swama endpoints convert [flags]
 swama endpoints convert --file swagger.yaml --endpoint /api/users --method POST --type curl
 ```
 
+### Components
+
+The `components` command allows you to list, and view API components(requests, responses etc.).
+
+#### List Components
+
+Lists all API components from a Swagger/OpenAPI file.
+
+```bash
+swama components list [flags]
+```
+
+**Example**:
+
+```bash
+swama components list
+```
+
+![preview](https://github.com/user-attachments/assets/a83c32ba-7b8d-4aec-b9c0-33e0bacfdff8)
+
+#### View Component Details
+
+Displays detailed information for a specific API component.
+
+```bash
+swama components view [flags]
+```
+
+**Available Flags**:
+
+- `-n, --name string`: Specify the component's name to view.
+
+**Example**:
+
+```bash
+swama components view --name customer
+```
+
+![preview](https://github.com/user-attachments/assets/073d93bd-d348-48e2-b750-571e803c0a73)
+
 ### Tags
 
 The `tags` command allows you to list API tags in the Swagger/OpenAPI file.
