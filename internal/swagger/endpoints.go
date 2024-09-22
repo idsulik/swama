@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"slices"
 	"sort"
+	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	converter2 "github.com/idsulik/swama/internal/converter"
@@ -211,7 +212,7 @@ func (e *endpoints) findOperation(method, endpoint string) (*openapi3.Operation,
 
 	if path != nil {
 		for m, operation := range path.Operations() {
-			if method != "" && m != method {
+			if method != "" && strings.ToLower(m) == strings.ToLower(method) {
 				return operation, nil
 			}
 		}
