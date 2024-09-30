@@ -33,10 +33,10 @@ func NewConverter(convertType string) (Converter, error) {
 	}
 }
 
-func askForValue(param *openapi3.Parameter) string {
+func askForValue(param *model.Parameter) string {
 	var paramValue string
 	fmt.Printf("Enter value for parameter %q: ", param.Name)
-	fmt.Scanln(&paramValue)
+	_, _ = fmt.Scanln(&paramValue)
 	if paramValue == "" && param.Required {
 		fmt.Printf("parameter %q is required\n", param.Name)
 		return askForValue(param)

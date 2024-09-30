@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/idsulik/swama/internal/model"
 )
 
@@ -21,42 +20,42 @@ func (c *Fetch) ConvertEndpoint(method string, endpoint string, operation *model
 	headers := make(map[string]string)
 
 	for _, param := range operation.Parameters {
-		if param.Value.In == openapi3.ParameterInPath {
-			value := askForValue(param.Value)
+		if param.In == model.ParameterInPath {
+			value := askForValue(param)
 
 			if value == "" {
 				continue
 			}
 
-			endpoint = strings.Replace(endpoint, fmt.Sprintf("{%s}", param.Value.Name), value, 1)
-		} else if param.Value.In == openapi3.ParameterInQuery {
-			value := askForValue(param.Value)
+			endpoint = strings.Replace(endpoint, fmt.Sprintf("{%s}", param.Name), value, 1)
+		} else if param.In == model.ParameterInQuery {
+			value := askForValue(param)
 
 			if value == "" {
 				continue
 			}
 
 			if strings.Contains(endpoint, "?") {
-				endpoint = fmt.Sprintf("%s&%s=%s", endpoint, param.Value.Name, value)
+				endpoint = fmt.Sprintf("%s&%s=%s", endpoint, param.Name, value)
 			} else {
-				endpoint = fmt.Sprintf("%s?%s=%s", endpoint, param.Value.Name, value)
+				endpoint = fmt.Sprintf("%s?%s=%s", endpoint, param.Name, value)
 			}
-		} else if param.Value.In == openapi3.ParameterInHeader {
-			value := askForValue(param.Value)
+		} else if param.In == model.ParameterInHeader {
+			value := askForValue(param)
 
 			if value == "" {
 				continue
 			}
 
-			headers[param.Value.Name] = value
-		} else if param.Value.In == openapi3.ParameterInCookie {
-			value := askForValue(param.Value)
+			headers[param.Name] = value
+		} else if param.In == model.ParameterInCookie {
+			value := askForValue(param)
 
 			if value == "" {
 				continue
 			}
 
-			headers["Cookie"] = fmt.Sprintf("%s=%s", param.Value.Name, value)
+			headers["Cookie"] = fmt.Sprintf("%s=%s", param.Name, value)
 		}
 	}
 

@@ -14,17 +14,17 @@ func PrintParameters(operation *model.Operation) {
 	table.SetRowLine(true)
 	table.SetHeader([]string{"In", "Parameter", "Type", "Required", "Description"})
 	for _, p := range operation.Parameters {
-		value := p.Value
 		description := "-"
-		if value.Description != "" {
-			description = value.Description
+		if p.Description != "" {
+			description = p.Description
 		}
+
 		table.Append(
 			[]string{
-				value.In,
-				value.Name,
-				enrichPropertyName(value.Name, value.Schema),
-				fmt.Sprintf("%v", value.Required),
+				p.In,
+				p.Name,
+				p.Type,
+				fmt.Sprintf("%v", p.Required),
 				description,
 			},
 		)
