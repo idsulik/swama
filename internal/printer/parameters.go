@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/idsulik/swama/internal/model"
 	"github.com/olekukonko/tablewriter"
 )
 
-func PrintParameters(operation *openapi3.Operation) {
+func PrintParameters(operation *model.Operation) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
 	table.SetRowLine(true)

@@ -4,11 +4,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/idsulik/swama/internal/model"
 	"github.com/olekukonko/tablewriter"
 )
 
-func PrintRequestBody(operation *openapi3.Operation) {
+func PrintRequestBody(operation *model.Operation) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
 	table.SetHeader([]string{"Type", "Properties"})

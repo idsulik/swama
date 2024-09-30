@@ -30,7 +30,12 @@ func newViewCommand() *cobra.Command {
 
 			endpoints := swagger.NewEndpoints(doc)
 
-			return endpoints.ViewEndpoint(viewCfg.method, viewCfg.endpoint)
+			return endpoints.ViewEndpoint(
+				swagger.ViewOptions{
+					Method:   viewCfg.method,
+					Endpoint: viewCfg.endpoint,
+				},
+			)
 		},
 	}
 

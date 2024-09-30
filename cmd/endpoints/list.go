@@ -33,7 +33,14 @@ func newListCommand() *cobra.Command {
 
 			endpoints := swagger.NewEndpoints(doc)
 
-			return endpoints.ListEndpoints(listCfg.method, listCfg.endpoint, listCfg.tag, listCfg.group)
+			return endpoints.ListEndpoints(
+				swagger.ListOptions{
+					Method:   listCfg.method,
+					Endpoint: listCfg.endpoint,
+					Tag:      listCfg.tag,
+					Group:    listCfg.group,
+				},
+			)
 		},
 	}
 

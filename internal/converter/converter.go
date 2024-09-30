@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/idsulik/swama/internal/model"
 	"github.com/manifoldco/promptui"
 )
 
@@ -18,7 +19,7 @@ var (
 )
 
 type Converter interface {
-	ConvertEndpoint(method string, endpoint string, _ *openapi3.Operation) string
+	ConvertEndpoint(method string, endpoint string, _ *model.Operation) string
 }
 
 func NewConverter(convertType string) (Converter, error) {

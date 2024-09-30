@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/idsulik/swama/internal/model"
 )
 
 type Curl struct {
@@ -16,7 +17,7 @@ func NewCurlConverter() *Curl {
 	return &Curl{}
 }
 
-func (c *Curl) ConvertEndpoint(method string, endpoint string, operation *openapi3.Operation) string {
+func (c *Curl) ConvertEndpoint(method string, endpoint string, operation *model.Operation) string {
 	var headers string
 
 	for _, param := range operation.Parameters {

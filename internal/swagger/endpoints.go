@@ -11,7 +11,9 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	converter2 "github.com/idsulik/swama/internal/converter"
+	"github.com/idsulik/swama/internal/model"
 	"github.com/idsulik/swama/internal/printer"
+	"github.com/idsulik/swama/internal/util"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -21,10 +23,28 @@ const (
 	GroupByNone   = "none"
 )
 
+type ListOptions struct {
+	Method   string
+	Endpoint string
+	Tag      string
+	Group    string
+}
+
+type ViewOptions struct {
+	Method   string
+	Endpoint string
+}
+
+type ConvertOptions struct {
+	Method   string
+	Endpoint string
+	ToType   string
+}
+
 type Endpoints interface {
-	ListEndpoints(method, endpoint, tag, group string) error
-	ViewEndpoint(method, endpoint string) error
-	ConvertEndpoint(method, endpoint, toType string) error
+	ListEndpoints(options ListOptions) error
+	ViewEndpoint(options ViewOptions) error
+	ConvertEndpoint(options ConvertOptions) error
 }
 
 type endpoints struct {
@@ -38,7 +58,7 @@ func NewEndpoints(doc *openapi3.T) Endpoints {
 }
 
 // ListEndpoints lists all available API endpoints in the Swagger/OpenAPI file.
-func (e *endpoints) ListEndpoints(method, endpoint, tag, group string) error {
+func (e *endpoints) ListEndpoints(options ListOptions) error {
 	type groupItem struct {
 		method  string
 		path    string
@@ -48,17 +68,17 @@ func (e *endpoints) ListEndpoints(method, endpoint, tag, group string) error {
 	groupedEndpoints := make(map[string][]groupItem)
 	for _, path := range e.doc.Paths.InMatchingOrder() {
 		for m, operation := range e.doc.Paths.Find(path).Operations() {
-			if endpoint != "" {
-				if matched, _ := regexp.MatchString(fmt.Sprintf("^%s$", endpoint), path); !matched {
+			if options.Endpoint != "" {
+				if matched, _ := regexp.MatchString(fmt.Sprintf("^%s$", options.Endpoint), path); !matched {
 					continue
 				}
 			}
 
-			if method != "" && m != method {
+			if options.Method != "" && m != options.Method {
 				continue
 			}
 
-			if tag != "" && !slices.Contains(operation.Tags, tag) {
+			if options.Tag != "" && !slices.Contains(operation.Tags, options.Tag) {
 				continue
 			}
 
@@ -67,9 +87,9 @@ func (e *endpoints) ListEndpoints(method, endpoint, tag, group string) error {
 				tags = fmt.Sprintf("%v", operation.Tags)
 			}
 
-			if group != "" {
+			if options.Group != "" {
 				keys := make([]string, 0)
-				if group == GroupByTag {
+				if options.Group == GroupByTag {
 					for _, tagName := range operation.Tags {
 						tag := e.doc.Tags.Get(tagName)
 						key := tagName
@@ -78,7 +98,7 @@ func (e *endpoints) ListEndpoints(method, endpoint, tag, group string) error {
 						}
 						keys = append(keys, key)
 					}
-				} else if group == GroupByMethod {
+				} else if options.Group == GroupByMethod {
 					keys = append(keys, m)
 				} else {
 					keys = append(keys, "none")
@@ -126,20 +146,9 @@ func (e *endpoints) ListEndpoints(method, endpoint, tag, group string) error {
 			},
 		)
 		for _, value := range values {
-			methodColor := tablewriter.FgWhiteColor
-			if value.method == "GET" {
-				methodColor = tablewriter.FgBlueColor
-			} else if value.method == "POST" {
-				methodColor = tablewriter.FgGreenColor
-			} else if value.method == "PUT" {
-				methodColor = tablewriter.FgYellowColor
-			} else if value.method == "DELETE" {
-				methodColor = tablewriter.FgRedColor
-			}
-
 			table.Rich(
 				[]string{value.method, value.path, value.summary, value.tags}, []tablewriter.Colors{
-					{methodColor},
+					{util.GetMethodColor(value.method)},
 				},
 			)
 		}
@@ -155,8 +164,8 @@ func (e *endpoints) ListEndpoints(method, endpoint, tag, group string) error {
 }
 
 // ViewEndpoint shows details about a specific API endpoint.
-func (e *endpoints) ViewEndpoint(method, endpoint string) error {
-	operation, err := e.findOperation(method, endpoint)
+func (e *endpoints) ViewEndpoint(options ViewOptions) error {
+	operation, err := e.findOperation(options.Method, options.Endpoint)
 
 	if err != nil {
 		return err
@@ -165,7 +174,10 @@ func (e *endpoints) ViewEndpoint(method, endpoint string) error {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
 	table.SetHeader([]string{"Method", "Path", "Summary", "Tags"})
-	table.Append([]string{method, endpoint, operation.Summary, fmt.Sprintf("%v", operation.Tags)})
+	table.Rich(
+		[]string{operation.Method, operation.Path, operation.Summary, fmt.Sprintf("%v", operation.Tags)},
+		[]tablewriter.Colors{{util.GetMethodColor(operation.Method)}},
+	)
 
 	table.Render()
 
@@ -188,32 +200,32 @@ func (e *endpoints) ViewEndpoint(method, endpoint string) error {
 }
 
 // ConvertEndpoint converts an endpoint to curl or fetch.
-func (e *endpoints) ConvertEndpoint(method, endpoint, toType string) error {
-	operation, err := e.findOperation(method, endpoint)
+func (e *endpoints) ConvertEndpoint(options ConvertOptions) error {
+	operation, err := e.findOperation(options.Method, options.Endpoint)
 
 	if err != nil {
 		return err
 	}
 
-	converter, err := converter2.NewConverter(toType)
+	converter, err := converter2.NewConverter(options.ToType)
 
 	if err != nil {
 		return err
 	}
 
-	converted := converter.ConvertEndpoint(method, endpoint, operation)
+	converted := converter.ConvertEndpoint(options.Method, options.Endpoint, operation)
 	fmt.Println(converted)
 
 	return nil
 }
 
-func (e *endpoints) findOperation(method, endpoint string) (*openapi3.Operation, error) {
+func (e *endpoints) findOperation(method, endpoint string) (*model.Operation, error) {
 	path := e.doc.Paths.Find(endpoint)
 
 	if path != nil {
 		for m, operation := range path.Operations() {
 			if method != "" && strings.ToLower(m) == strings.ToLower(method) {
-				return operation, nil
+				return model.NewOperation(m, endpoint, operation), nil
 			}
 		}
 	}

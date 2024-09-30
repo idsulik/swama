@@ -6,11 +6,11 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/idsulik/swama/internal/model"
 	"github.com/olekukonko/tablewriter"
 )
 
-func PrintResponses(operation *openapi3.Operation) {
+func PrintResponses(operation *model.Operation) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
 	table.SetAutoMergeCells(true)

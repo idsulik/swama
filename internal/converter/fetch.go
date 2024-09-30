@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/idsulik/swama/internal/model"
 )
 
 type Fetch struct {
@@ -16,7 +17,7 @@ func NewFetchConverter() *Fetch {
 	return &Fetch{}
 }
 
-func (c *Fetch) ConvertEndpoint(method string, endpoint string, operation *openapi3.Operation) string {
+func (c *Fetch) ConvertEndpoint(method string, endpoint string, operation *model.Operation) string {
 	headers := make(map[string]string)
 
 	for _, param := range operation.Parameters {

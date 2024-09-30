@@ -31,7 +31,13 @@ func newConvertCommand() *cobra.Command {
 
 			endpoints := swagger.NewEndpoints(doc)
 
-			return endpoints.ConvertEndpoint(convertCfg.method, convertCfg.endpoint, convertCfg.toType)
+			return endpoints.ConvertEndpoint(
+				swagger.ConvertOptions{
+					Method:   convertCfg.method,
+					Endpoint: convertCfg.endpoint,
+					ToType:   convertCfg.toType,
+				},
+			)
 		},
 	}
 
