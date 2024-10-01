@@ -6,19 +6,19 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/idsulik/swama/internal/model"
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/olekukonko/tablewriter"
 )
 
-func PrintResponses(operation *model.Operation) {
+func PrintResponses(responses *openapi3.Responses) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
 	table.SetAutoMergeCells(true)
 	table.SetRowLine(true)
 	table.SetHeader([]string{"Name", "Content Types", "Properties", "Description"})
-	sortedCodes := slices.Sorted(maps.Keys(operation.Responses.Map()))
+	sortedCodes := slices.Sorted(maps.Keys(responses.Map()))
 	for _, code := range sortedCodes {
-		response := operation.Responses.Value(code)
+		response := responses.Value(code)
 		description := "-"
 		if response.Value.Description != nil {
 			description = *response.Value.Description

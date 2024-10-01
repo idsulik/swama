@@ -4,16 +4,16 @@ import (
 	"os"
 	"strings"
 
-	"github.com/idsulik/swama/internal/model"
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/olekukonko/tablewriter"
 )
 
-func PrintRequestBody(operation *model.Operation) {
+func PrintRequestBody(requestBody *openapi3.RequestBody) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
 	table.SetHeader([]string{"Type", "Properties"})
 	propertiesToContentTypes := make(map[string][]string)
-	for contentType, content := range operation.RequestBody.Value.Content {
+	for contentType, content := range requestBody.Content {
 		properties := strings.Join(getProperties(content.Schema.Value), "\n")
 		propertiesToContentTypes[properties] = append(propertiesToContentTypes[properties], contentType)
 	}

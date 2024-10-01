@@ -8,12 +8,12 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-func PrintParameters(operation *model.Operation) {
+func PrintParameters(parameters []*model.Parameter) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
 	table.SetRowLine(true)
 	table.SetHeader([]string{"In", "Parameter", "Type", "Required", "Description"})
-	for _, p := range operation.Parameters {
+	for _, p := range parameters {
 		description := "-"
 		if p.Description != "" {
 			description = p.Description

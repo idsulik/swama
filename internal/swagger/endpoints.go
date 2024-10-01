@@ -183,17 +183,17 @@ func (e *endpoints) ViewEndpoint(options ViewOptions) error {
 
 	if len(operation.Parameters) > 0 {
 		fmt.Println("Parameters:")
-		printer.PrintParameters(operation)
+		printer.PrintParameters(operation.Parameters)
 	}
 
 	if operation.RequestBody != nil {
 		fmt.Println("Request Body:")
-		printer.PrintRequestBody(operation)
+		printer.PrintRequestBody(operation.RequestBody.Value)
 	}
 
 	if operation.Responses != nil {
 		fmt.Println("Responses:")
-		printer.PrintResponses(operation)
+		printer.PrintResponses(operation.Responses)
 	}
 
 	return nil
