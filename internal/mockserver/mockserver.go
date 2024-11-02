@@ -1,10 +1,9 @@
 package mockserver
 
 import (
+	"encoding/xml"
 	"fmt"
-	"log"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -33,7 +32,7 @@ func (m *MockServer) Run(options RunOptions) error {
 
 	for _, path := range m.doc.Paths.InMatchingOrder() {
 		for method, operation := range m.doc.Paths.Find(path).Operations() {
-			app.Handle(method, convertPathToGinFormat(path), m.registerHandler(method, path, operation, options))
+			app.Handle(method, convertPathToGinFormat(path), m.registerHandler(operation, options))
 		}
 	}
 
@@ -56,84 +55,76 @@ func (m *MockServer) Run(options RunOptions) error {
 	return app.Run(fmt.Sprintf("%s:%d", options.Host, options.Port))
 }
 
-func (m *MockServer) registerHandler(method, path string, op *openapi3.Operation, options RunOptions) gin.HandlerFunc {
+func (m *MockServer) registerHandler(op *openapi3.Operation, options RunOptions) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// If Delay is set in options, apply it to simulate latency
 		if options.Delay > 0 {
 			time.Sleep(time.Duration(options.Delay) * time.Millisecond)
 		}
 
-		// Choose a response status code from the operation's responses
-		var status int
-		var example interface{}
-		response := m.findResponse(op)
+		status, response := m.findResponse(op)
+		if response == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "No response defined"})
+			return
+		}
 
-		// Use the first example found in the response content
-		if len(response.Content) > 0 {
-			for _, mediaType := range response.Content {
-				if mediaType.Example != nil {
-					example = mediaType.Example
-				} else if len(mediaType.Examples) > 0 {
-					// If multiple examples exist, use the first one
-					for _, ex := range mediaType.Examples {
-						example = ex.Value.Value
-						break
-					}
+		// Get accepted content types from Accept header
+		acceptHeader := c.GetHeader("Accept")
+		acceptedTypes := parseAcceptHeader(acceptHeader)
+
+		// Find matching content type and schema
+		var contentType string
+		var schema *openapi3.Schema
+		for mediaType, content := range response.Content {
+			for _, acceptedType := range acceptedTypes {
+				if strings.HasPrefix(mediaType, acceptedType) {
+					contentType = mediaType
+					schema = content.Schema.Value
+					break
 				}
+			}
+			if schema != nil {
 				break
 			}
 		}
 
-		// If no example is found, fall back to a generic message
-		if example == nil {
-			params := c.Params
-			paramsStr := strings.Builder{}
-			for _, p := range params {
-				paramsStr.WriteString(fmt.Sprintf("%s=%s ", p.Key, p.Value))
-			}
-			example = gin.H{
-				"message": fmt.Sprintf("Mock response"),
-				"method":  method,
-				"path":    path,
-				"params":  params,
+		// If no matching content type found, default to JSON
+		if schema == nil {
+			contentType = "application/json"
+			if jsonContent, ok := response.Content["application/json"]; ok {
+				schema = jsonContent.Schema.Value
 			}
 		}
 
-		c.JSON(status, example)
+		// Generate mock data based on schema
+		mockData := generateMockData(schema)
+
+		// Send response based on content type
+		switch {
+		case strings.Contains(contentType, "application/xml"):
+			c.Header("Content-Type", "application/xml")
+			xmlData, err := xml.Marshal(mockData)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate XML"})
+				return
+			}
+			c.String(status, string(xmlData))
+		default:
+			c.JSON(status, mockData)
+		}
 	}
 }
 
-func (m *MockServer) findResponse(op *openapi3.Operation) *openapi3.Response {
-	var response *openapi3.Response
+func (m *MockServer) findResponse(op *openapi3.Operation) (int, *openapi3.Response) {
 	for statusCode, responseRef := range op.Responses.Map() {
 		status := parseStatusCode(statusCode)
-
 		if status >= 200 && status < 300 {
-			return responseRef.Value
-		}
-
-		if response == nil {
-			response = responseRef.Value
+			return status, responseRef.Value
 		}
 	}
-
-	return response
-}
-
-// Helper function to convert OpenAPI path format to Gin's format
-func convertPathToGinFormat(path string) string {
-	path = strings.ReplaceAll(path, "{", ":")
-	path = strings.ReplaceAll(path, "}", "")
-
-	return path
-}
-
-// Helper function to parse the status code string to an integer
-func parseStatusCode(code string) int {
-	status, err := strconv.Atoi(code)
-	if err != nil {
-		log.Printf("Invalid status code '%s', defaulting to 200", code)
-		return 200
+	// Default to 200 if no successful response found
+	if defaultResponse := op.Responses.Default(); defaultResponse != nil {
+		return 200, defaultResponse.Value
 	}
-	return status
+	return 200, nil
 }
