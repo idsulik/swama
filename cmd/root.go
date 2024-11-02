@@ -7,6 +7,7 @@ import (
 	"github.com/idsulik/swama/cmd/config"
 	"github.com/idsulik/swama/cmd/endpoints"
 	"github.com/idsulik/swama/cmd/info"
+	"github.com/idsulik/swama/cmd/mockserver"
 	"github.com/idsulik/swama/cmd/servers"
 	"github.com/idsulik/swama/cmd/tags"
 	"github.com/idsulik/swama/internal/swagger"
@@ -42,4 +43,5 @@ func init() {
 	rootCmd.AddCommand(components.NewComponentsCommand())
 	rootCmd.AddCommand(servers.NewServersCommand())
 	rootCmd.AddCommand(tags.NewTagsCommand())
+	rootCmd.AddCommand(mockserver.NewMockCommand())
 }
