@@ -1,4 +1,4 @@
-module github.com/idsulik/swama
+module github.com/idsulik/swama/v2
 
 go 1.23.1
 
