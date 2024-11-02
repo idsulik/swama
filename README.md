@@ -14,6 +14,7 @@ Swama is a powerful command-line interface (CLI) tool for interacting with Swagg
 - **Flexible Filtering**: Filter endpoints by method, tag, or specific endpoint using wildcards.
 - **Grouping**: Group endpoint listings by tag or method.
 - **Support for Autocompletion**: Enable shell autocompletion for faster workflows.
+- **Mock Server**: Start a local mock server based on your Swagger/OpenAPI definitions. The mock server simulates API responses based on the specification, enabling rapid prototyping and testing.
 
 ## Installation
 
@@ -57,10 +58,11 @@ swama [command]
 
 - **`completion`**: Generate the autocompletion script for the specified shell.
 - **`endpoints`**: Interact with API endpoints (list, view, convert).
+- **`mock-server`**: Start a local mock server based on the Swagger file.
 - **`components`**: Interact with API components (list, view).
 - **`info`**: Display general information about the Swagger file.
-- **`servers`**: Interact with servers.
-- **`tags`**: Interact with API tags.
+- **`servers`**: List API servers.
+- **`tags`**: List and view API tags.
 
 ### Global Flags
 
@@ -139,6 +141,32 @@ swama endpoints convert [flags]
 ```bash
 swama endpoints convert --file swagger.yaml --endpoint /api/users --method POST --type curl
 ```
+
+### Mock Server
+
+The `mock-server` command allows you to run a local mock server based on a Swagger/OpenAPI specification file. This mock server simulates API responses, making it easier to test and prototype API interactions locally.
+
+#### Run Mock Server
+
+Starts a mock server.
+
+```bash
+swama mock-server run [flags]
+```
+
+**Available Flags**:
+
+- `--port int`: Specify the port for the mock server (default: 8080).
+- `--host string`: Set the host address for the mock server (default: "localhost").
+- `--delay int`: Add a delay in milliseconds to each response, useful for simulating network latency.
+
+**Example**:
+
+```bash
+swama mock-server run --port 8081 --host 0.0.0.0 --delay 200
+```
+
+This command starts a mock server on port 8081, accessible on all network interfaces (`0.0.0.0`), with a 200ms delay added to each response to simulate latency.
 
 ### Components
 
