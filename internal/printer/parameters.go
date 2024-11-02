@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/idsulik/swama/internal/model"
+	"github.com/idsulik/swama/v2/internal/model"
 	"github.com/olekukonko/tablewriter"
 )
 

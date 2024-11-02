@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/idsulik/swama/internal/printer"
+	"github.com/idsulik/swama/v2/internal/printer"
 	"github.com/olekukonko/tablewriter"
 )
 

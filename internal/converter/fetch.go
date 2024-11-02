@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/idsulik/swama/internal/model"
+	"github.com/idsulik/swama/v2/internal/model"
 )
 
 type Fetch struct {

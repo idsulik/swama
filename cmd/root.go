@@ -3,14 +3,14 @@ package cmd
 import (
 	"context"
 
-	"github.com/idsulik/swama/cmd/components"
-	"github.com/idsulik/swama/cmd/config"
-	"github.com/idsulik/swama/cmd/endpoints"
-	"github.com/idsulik/swama/cmd/info"
-	"github.com/idsulik/swama/cmd/mockserver"
-	"github.com/idsulik/swama/cmd/servers"
-	"github.com/idsulik/swama/cmd/tags"
-	"github.com/idsulik/swama/internal/swagger"
+	"github.com/idsulik/swama/v2/cmd/components"
+	"github.com/idsulik/swama/v2/cmd/config"
+	"github.com/idsulik/swama/v2/cmd/endpoints"
+	"github.com/idsulik/swama/v2/cmd/info"
+	"github.com/idsulik/swama/v2/cmd/mockserver"
+	"github.com/idsulik/swama/v2/cmd/servers"
+	"github.com/idsulik/swama/v2/cmd/tags"
+	"github.com/idsulik/swama/v2/internal/swagger"
 	"github.com/spf13/cobra"
 )
 

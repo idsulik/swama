@@ -3,9 +3,9 @@ package mockserver
 import (
 	"fmt"
 
-	"github.com/idsulik/swama/cmd/config"
-	mockserver2 "github.com/idsulik/swama/internal/mockserver"
-	"github.com/idsulik/swama/internal/swagger"
+	"github.com/idsulik/swama/v2/cmd/config"
+	mockserver2 "github.com/idsulik/swama/v2/internal/mockserver"
+	"github.com/idsulik/swama/v2/internal/swagger"
 	"github.com/spf13/cobra"
 )
 

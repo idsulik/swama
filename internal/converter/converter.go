@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/idsulik/swama/internal/model"
+	"github.com/idsulik/swama/v2/internal/model"
 	"github.com/manifoldco/promptui"
 )
 

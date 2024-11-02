@@ -3,8 +3,8 @@ package servers
 import (
 	"fmt"
 
-	"github.com/idsulik/swama/cmd/config"
-	"github.com/idsulik/swama/internal/swagger"
+	"github.com/idsulik/swama/v2/cmd/config"
+	"github.com/idsulik/swama/v2/internal/swagger"
 	"github.com/spf13/cobra"
 )
 

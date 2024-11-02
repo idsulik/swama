@@ -10,10 +10,10 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	converter2 "github.com/idsulik/swama/internal/converter"
-	"github.com/idsulik/swama/internal/model"
-	"github.com/idsulik/swama/internal/printer"
-	"github.com/idsulik/swama/internal/util"
+	converter2 "github.com/idsulik/swama/v2/internal/converter"
+	"github.com/idsulik/swama/v2/internal/model"
+	"github.com/idsulik/swama/v2/internal/printer"
+	"github.com/idsulik/swama/v2/internal/util"
 	"github.com/olekukonko/tablewriter"
 )
 

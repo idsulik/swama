@@ -1,7 +1,7 @@
 # Swama 
 [![Go Report Card](https://goreportcard.com/badge/github.com/idsulik/swama)](https://goreportcard.com/report/github.com/idsulik/swama)
-[![Version](https://img.shields.io/github/v/release/idsulik/swama)](https://github.com/idsulik/swama/releases)
-[![License](https://img.shields.io/github/license/idsulik/swama)](https://github.com/idsulik/swama/blob/main/LICENSE)
+[![Version](https://img.shields.io/github/v/release/idsulik/swama)](https://github.com/idsulik/swama/v2/releases)
+[![License](https://img.shields.io/github/license/idsulik/swama)](https://github.com/idsulik/swama/v2/blob/main/LICENSE)
 [![GoDoc](https://pkg.go.dev/badge/github.com/idsulik/swama)](https://pkg.go.dev/github.com/idsulik/swama)
 
 Swama is a powerful command-line interface (CLI) tool for interacting with Swagger/OpenAPI definitions. It allows you to list, view, convert, and explore API specifications directly from the command line. Swama supports JSON and YAML formats for Swagger files, and it's available for multiple platforms through pre-built binaries.
@@ -20,10 +20,10 @@ Swama is a powerful command-line interface (CLI) tool for interacting with Swagg
 
 ### Download Pre-Built Binaries
 
-Swama provides pre-built binaries for Linux, macOS, and Windows. You can download the appropriate binary from the [releases page](https://github.com/idsulik/swama/releases).
+Swama provides pre-built binaries for Linux, macOS, and Windows. You can download the appropriate binary from the [releases page](https://github.com/idsulik/swama/v2/releases).
 
 1. **Download the latest release**:
-    - Navigate to the [releases page](https://github.com/idsulik/swama/releases).
+    - Navigate to the [releases page](https://github.com/idsulik/swama/v2/releases).
     - Choose the binary for your platform (Linux, macOS, Windows).
 
 2. **Install the binary**:
