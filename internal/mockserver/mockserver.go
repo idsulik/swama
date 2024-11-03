@@ -11,10 +11,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	responseCodeHeaderName       = "X-Mock-Response-Code"
+	responseCodeQueryParamName   = "x-response-code"
+	responseTypeQueryParamName   = "x-response-type"
+	availableResponsesHeaderName = "X-Available-Responses"
+)
+
 type RunOptions struct {
-	Host  string
-	Port  int
-	Delay int
+	Host                string
+	Port                int
+	Delay               int
+	DefaultResponseCode string
+	DefaultResponseType string
+}
+
+// XMLNode represents a generic XML node
+type XMLNode struct {
+	XMLName  xml.Name
+	Attrs    []xml.Attr `xml:"attr,omitempty"`
+	Value    string     `xml:",chardata"`
+	Children []*XMLNode `xml:",any"`
 }
 
 type MockServer struct {
@@ -28,7 +45,10 @@ func NewMockServer(doc *openapi3.T) *MockServer {
 }
 
 func (m *MockServer) Run(options RunOptions) error {
+	gin.SetMode(gin.ReleaseMode)
 	app := gin.Default()
+
+	app.Use(m.availableResponsesMiddleware())
 
 	for _, path := range m.doc.Paths.InMatchingOrder() {
 		for method, operation := range m.doc.Paths.Find(path).Operations() {
@@ -41,18 +61,70 @@ func (m *MockServer) Run(options RunOptions) error {
 		"/", func(c *gin.Context) {
 			var routes []gin.H
 			for _, route := range app.Routes() {
+				if route.Path == "/" {
+					continue
+				}
+
+				path := m.doc.Paths.Find(convertGinPathToOpenAPI(route.Path))
+				responseCodeToContentType := make(map[string]string)
+				if op := path.GetOperation(route.Method); op != nil {
+					for code, resp := range op.Responses.Map() {
+						responseCodeToContentType[code] = "application/json"
+						for contentType := range resp.Value.Content {
+							responseCodeToContentType[code] = contentType
+						}
+					}
+				}
+
 				routes = append(
 					routes, gin.H{
-						"method": route.Method,
-						"path":   route.Path,
+						"method":             route.Method,
+						"path":               route.Path,
+						"availableResponses": responseCodeToContentType,
 					},
 				)
 			}
-			c.JSON(http.StatusOK, routes)
+
+			c.JSON(
+				http.StatusOK, gin.H{
+					"routes": routes,
+					"usage": gin.H{
+						"responseCode": gin.H{
+							"queryParam":     fmt.Sprintf("?%s=<status_code>", responseCodeQueryParamName),
+							"header":         fmt.Sprintf("%s: <status_code>", responseCodeHeaderName),
+							"availableCodes": fmt.Sprintf("%s header in response", availableResponsesHeaderName),
+						},
+						"responseType": gin.H{
+							"queryParam": fmt.Sprintf("?%s=<response_type>", responseTypeQueryParamName),
+						},
+					},
+				},
+			)
 		},
 	)
 
+	fmt.Printf("Mock server listening on http://%s:%d\n", options.Host, options.Port)
 	return app.Run(fmt.Sprintf("%s:%d", options.Host, options.Port))
+}
+
+func (m *MockServer) availableResponsesMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next()
+
+		// After handler execution, add header with available response codes
+		path := m.doc.Paths.Find(convertGinPathToOpenAPI(c.FullPath()))
+		if path != nil {
+			if op := path.GetOperation(c.Request.Method); op != nil {
+				var codes []string
+				for code := range op.Responses.Map() {
+					codes = append(codes, code)
+				}
+				if len(codes) > 0 {
+					c.Header(availableResponsesHeaderName, strings.Join(codes, ","))
+				}
+			}
+		}
+	}
 }
 
 func (m *MockServer) registerHandler(op *openapi3.Operation, options RunOptions) gin.HandlerFunc {
@@ -62,33 +134,65 @@ func (m *MockServer) registerHandler(op *openapi3.Operation, options RunOptions)
 			time.Sleep(time.Duration(options.Delay) * time.Millisecond)
 		}
 
-		status, response := m.findResponse(op)
+		// Get desired response code from query param or header
+		desiredCode := c.Query(responseCodeQueryParamName)
+		if desiredCode == "" {
+			desiredCode = c.GetHeader(responseCodeHeaderName)
+		}
+
+		// If no code specified, use default
+		if desiredCode == "" {
+			desiredCode = options.DefaultResponseCode
+		}
+
+		// Get desired response type from query param
+		desiredType := c.Query(responseTypeQueryParamName)
+		if desiredType == "" {
+			desiredType = options.DefaultResponseType
+		}
+
+		response := m.findSpecificResponse(op, desiredCode)
 		if response == nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "No response defined"})
+			body := gin.H{
+				"error":          fmt.Sprintf("No response defined for status code %s", desiredCode),
+				"availableCodes": m.getAvailableResponseCodes(op),
+			}
+			if desiredType == "xml" {
+				c.XML(http.StatusBadRequest, body)
+				return
+			} else {
+				c.JSON(http.StatusBadRequest, body)
+			}
 			return
 		}
 
-		// Get accepted content types from Accept header
+		status := parseStatusCode(desiredCode)
 		acceptHeader := c.GetHeader("Accept")
 		acceptedTypes := parseAcceptHeader(acceptHeader)
 
-		// Find matching content type and schema
 		var contentType string
 		var schema *openapi3.Schema
 		for mediaType, content := range response.Content {
 			for _, acceptedType := range acceptedTypes {
-				if strings.HasPrefix(mediaType, acceptedType) {
+				if desiredType != "" {
+					if strings.HasSuffix(mediaType, desiredType) {
+						contentType = mediaType
+						schema = content.Schema.Value
+						break
+					}
+
+				} else if strings.HasPrefix(mediaType, acceptedType) {
 					contentType = mediaType
 					schema = content.Schema.Value
 					break
 				}
 			}
+
 			if schema != nil {
 				break
 			}
 		}
 
-		// If no matching content type found, default to JSON
 		if schema == nil {
 			contentType = "application/json"
 			if jsonContent, ok := response.Content["application/json"]; ok {
@@ -96,35 +200,28 @@ func (m *MockServer) registerHandler(op *openapi3.Operation, options RunOptions)
 			}
 		}
 
-		// Generate mock data based on schema
 		mockData := generateMockData(schema)
 
-		// Send response based on content type
 		switch {
 		case strings.Contains(contentType, "application/xml"):
-			c.Header("Content-Type", "application/xml")
-			xmlData, err := xml.Marshal(mockData)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate XML"})
-				return
-			}
-			c.String(status, string(xmlData))
+			c.XML(status, mapToXML(mockData, schema, "root"))
 		default:
 			c.JSON(status, mockData)
 		}
 	}
 }
 
-func (m *MockServer) findResponse(op *openapi3.Operation) (int, *openapi3.Response) {
-	for statusCode, responseRef := range op.Responses.Map() {
-		status := parseStatusCode(statusCode)
-		if status >= 200 && status < 300 {
-			return status, responseRef.Value
-		}
+func (m *MockServer) findSpecificResponse(op *openapi3.Operation, code string) *openapi3.Response {
+	if responseRef, ok := op.Responses.Map()[code]; ok {
+		return responseRef.Value
 	}
-	// Default to 200 if no successful response found
-	if defaultResponse := op.Responses.Default(); defaultResponse != nil {
-		return 200, defaultResponse.Value
+	return nil
+}
+
+func (m *MockServer) getAvailableResponseCodes(op *openapi3.Operation) []string {
+	var codes []string
+	for code := range op.Responses.Map() {
+		codes = append(codes, code)
 	}
-	return 200, nil
+	return codes
 }

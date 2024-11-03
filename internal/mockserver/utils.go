@@ -1,6 +1,8 @@
 package mockserver
 
 import (
+	"encoding/xml"
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -57,6 +59,92 @@ func generateMockData(schema *openapi3.Schema) interface{} {
 	}
 }
 
+// mapToXML converts a map[string]interface{} to XML structure
+func mapToXML(data interface{}, schema *openapi3.Schema, name string) *XMLNode {
+	if data == nil || schema == nil {
+		return nil
+	}
+
+	// Get XML name from schema or use provided name
+	xmlName := name
+	if schema.XML != nil && schema.XML.Name != "" {
+		xmlName = schema.XML.Name
+	}
+
+	node := &XMLNode{
+		XMLName: xml.Name{Local: xmlName},
+	}
+
+	switch v := data.(type) {
+	case map[string]interface{}:
+		for key, value := range v {
+			propSchema := schema.Properties[key].Value
+			if propSchema == nil {
+				continue
+			}
+
+			// Handle properties marked as XML attributes
+			if propSchema.XML != nil && propSchema.XML.Attribute {
+				node.Attrs = append(
+					node.Attrs, xml.Attr{
+						Name:  xml.Name{Local: key},
+						Value: fmt.Sprintf("%v", value),
+					},
+				)
+				continue
+			}
+
+			// Get property name from schema or use key
+			propName := key
+			if propSchema.XML != nil && propSchema.XML.Name != "" {
+				propName = propSchema.XML.Name
+			}
+
+			childNode := mapToXML(value, propSchema, propName)
+			if childNode != nil {
+				node.Children = append(node.Children, childNode)
+			}
+		}
+
+	case []interface{}:
+		// Handle array wrapping if specified in schema
+		if schema.XML != nil && schema.XML.Wrapped {
+			// For wrapped arrays, return the current node and append items as children
+			for _, item := range v {
+				childNode := mapToXML(item, schema.Items.Value, name)
+				if childNode != nil {
+					node.Children = append(node.Children, childNode)
+				}
+			}
+			return node
+		} else {
+			// For unwrapped arrays, return an array of nodes
+			nodes := make([]*XMLNode, 0)
+			for _, item := range v {
+				childNode := mapToXML(item, schema.Items.Value, name)
+				if childNode != nil {
+					nodes = append(nodes, childNode)
+				}
+			}
+			// If this is the root node, wrap it
+			if name != "" {
+				node.Children = nodes
+				return node
+			}
+			return &XMLNode{
+				XMLName:  xml.Name{Local: "array"},
+				Children: nodes,
+			}
+		}
+
+	default:
+		// Handle primitive values
+		node.Value = fmt.Sprintf("%v", v)
+	}
+
+	return node
+}
+
 func parseAcceptHeader(header string) []string {
 	if header == "" {
 		return []string{"application/json"}
@@ -73,11 +161,23 @@ func parseAcceptHeader(header string) []string {
 	return types
 }
 
+// convertPathToGinFormat Convert OpenAPI path params ({param}) to Gin format (:param)
 func convertPathToGinFormat(path string) string {
 	path = strings.ReplaceAll(path, "{", ":")
 	path = strings.ReplaceAll(path, "}", "")
 
 	return path
+}
+
+// convertGinPathToOpenAPI Convert Gin path params (:param) back to OpenAPI format ({param})
+func convertGinPathToOpenAPI(path string) string {
+	parts := strings.Split(path, "/")
+	for i, part := range parts {
+		if strings.HasPrefix(part, ":") {
+			parts[i] = "{" + strings.TrimPrefix(part, ":") + "}"
+		}
+	}
+	return strings.Join(parts, "/")
 }
 
 // Helper function to parse the status code string to an integer
