@@ -153,12 +153,13 @@ Starts a mock server.
 ```bash
 swama mock-server run [flags]
 ```
-
 **Available Flags**:
 
 - `--port int`: Specify the port for the mock server (default: 8080).
 - `--host string`: Set the host address for the mock server (default: "localhost").
 - `--delay int`: Add a delay in milliseconds to each response, useful for simulating network latency.
+- `--default-response-code int`: Set the default response code to use (default: 200).
+- `--default-response-type string`: Set the default response type to use (default: "json").
 
 **Example**:
 
